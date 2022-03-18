@@ -133,6 +133,10 @@ type decoder struct {
 	// are at in the Go array, as we can't just introspect its size.
 	arrayIndexes map[reflect.Value]int
 
+	// For structs with a field tagged `toml:",index"`, tracks the index of the
+	// field in the struct with the "index" tag.
+	indexIndexes map[reflect.Type]int
+
 	// Tracks keys that have been seen, with which type.
 	seen tracker.SeenTracker
 
@@ -188,6 +192,28 @@ func (d *decoder) arrayIndex(shouldAppend bool, v reflect.Value) int {
 	}
 
 	return idx
+}
+
+func (d *decoder) indexIndex(v reflect.Value) int {
+	if d.indexIndexes == nil {
+		d.indexIndexes = make(map[reflect.Type]int, 1)
+	}
+
+	t := v.Type()
+	index, found := d.indexIndexes[t]
+	if !found {
+		index = -1
+		for i := 0; i < v.NumField(); i++ {
+			tag := t.Field(i).Tag.Get("toml")
+			if _, opts := parseTag(tag); opts.index {
+				index = i
+				break
+			}
+		}
+		d.indexIndexes[t] = index
+	}
+
+	return index
 }
 
 func (d *decoder) FromParser(v interface{}) error {
@@ -462,6 +488,15 @@ func (d *decoder) handleKeyPart(key ast.Iterator, v reflect.Value, nextFn handle
 		if x.IsValid() {
 			mv = x
 			set = true
+		}
+
+		if mv.Kind() == reflect.Struct {
+			if index := d.indexIndex(mv); index != -1 {
+				if indexField := mv.Field(index); indexField.IsValid() {
+					indexField.SetInt(int64(v.Len()))
+					break
+				}
+			}
 		}
 
 		if set {

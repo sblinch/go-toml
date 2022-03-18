@@ -642,6 +642,7 @@ type tagOptions struct {
 	multiline bool
 	inline    bool
 	omitempty bool
+	index     bool
 }
 
 func parseTag(tag string) (string, tagOptions) {
@@ -669,6 +670,8 @@ func parseTag(tag string) (string, tagOptions) {
 			opts.inline = true
 		case "omitempty":
 			opts.omitempty = true
+		case "index":
+			opts.index = true
 		}
 	}
 
