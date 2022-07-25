@@ -4,17 +4,6 @@ Go library for the [TOML](https://toml.io/en/) format.
 
 This library supports [TOML v1.0.0](https://toml.io/en/v1.0.0).
 
-## Development status
-
-This is the upcoming major version of go-toml. It is currently in active
-development. As of release v2.0.0-beta.1, the library has reached feature parity
-with v1, and fixes a lot known bugs and performance issues along the way.
-
-If you do not need the advanced document editing features of v1, you are
-encouraged to try out this version.
-
-[👉 Roadmap for v2](https://github.com/pelletier/go-toml/discussions/506)
-
 [🐞 Bug Reports](https://github.com/pelletier/go-toml/issues)
 
 [💬 Anything else](https://github.com/pelletier/go-toml/discussions)
@@ -49,7 +38,7 @@ operations should not be shockingly slow. See [benchmarks](#benchmarks).
 ### Strict mode
 
 `Decoder` can be set to "strict mode", which makes it error when some parts of
-the TOML document was not prevent in the target structure. This is a great way
+the TOML document was not present in the target structure. This is a great way
 to check for typos. [See example in the documentation][strict].
 
 [strict]: https://pkg.go.dev/github.com/pelletier/go-toml/v2#example-Decoder.DisallowUnknownFields
@@ -161,11 +150,11 @@ Execution time speedup compared to other Go TOML libraries:
     </thead>
     <tbody>
         <tr><td>Marshal/HugoFrontMatter-2</td><td>1.9x</td><td>1.9x</td></tr>
-        <tr><td>Marshal/ReferenceFile/map-2</td><td>1.7x</td><td>1.9x</td></tr>
-        <tr><td>Marshal/ReferenceFile/struct-2</td><td>2.4x</td><td>2.6x</td></tr>
-        <tr><td>Unmarshal/HugoFrontMatter-2</td><td>2.9x</td><td>2.5x</td></tr>
-        <tr><td>Unmarshal/ReferenceFile/map-2</td><td>2.7x</td><td>2.6x</td></tr>
-        <tr><td>Unmarshal/ReferenceFile/struct-2</td><td>4.8x</td><td>5.1x</td></tr>
+        <tr><td>Marshal/ReferenceFile/map-2</td><td>1.7x</td><td>1.8x</td></tr>
+        <tr><td>Marshal/ReferenceFile/struct-2</td><td>2.2x</td><td>2.5x</td></tr>
+        <tr><td>Unmarshal/HugoFrontMatter-2</td><td>2.9x</td><td>2.9x</td></tr>
+        <tr><td>Unmarshal/ReferenceFile/map-2</td><td>2.6x</td><td>2.9x</td></tr>
+        <tr><td>Unmarshal/ReferenceFile/struct-2</td><td>4.4x</td><td>5.3x</td></tr>
      </tbody>
 </table>
 <details><summary>See more</summary>
@@ -178,17 +167,17 @@ provided for completeness.</p>
         <tr><th>Benchmark</th><th>go-toml v1</th><th>BurntSushi/toml</th></tr>
     </thead>
     <tbody>
-        <tr><td>Marshal/SimpleDocument/map-2</td><td>1.7x</td><td>2.1x</td></tr>
-        <tr><td>Marshal/SimpleDocument/struct-2</td><td>2.5x</td><td>2.8x</td></tr>
-        <tr><td>Unmarshal/SimpleDocument/map-2</td><td>4.1x</td><td>3.1x</td></tr>
-        <tr><td>Unmarshal/SimpleDocument/struct-2</td><td>6.4x</td><td>4.3x</td></tr>
-        <tr><td>UnmarshalDataset/example-2</td><td>3.4x</td><td>3.2x</td></tr>
-        <tr><td>UnmarshalDataset/code-2</td><td>2.2x</td><td>2.5x</td></tr>
-        <tr><td>UnmarshalDataset/twitter-2</td><td>2.8x</td><td>2.7x</td></tr>
-        <tr><td>UnmarshalDataset/citm_catalog-2</td><td>2.2x</td><td>2.0x</td></tr>
-        <tr><td>UnmarshalDataset/canada-2</td><td>1.8x</td><td>1.4x</td></tr>
-        <tr><td>UnmarshalDataset/config-2</td><td>4.4x</td><td>2.9x</td></tr>
-        <tr><td>[Geo mean]</td><td>2.8x</td><td>2.6x</td></tr>
+        <tr><td>Marshal/SimpleDocument/map-2</td><td>1.8x</td><td>2.9x</td></tr>
+        <tr><td>Marshal/SimpleDocument/struct-2</td><td>2.7x</td><td>4.2x</td></tr>
+        <tr><td>Unmarshal/SimpleDocument/map-2</td><td>4.5x</td><td>3.1x</td></tr>
+        <tr><td>Unmarshal/SimpleDocument/struct-2</td><td>6.2x</td><td>3.9x</td></tr>
+        <tr><td>UnmarshalDataset/example-2</td><td>3.1x</td><td>3.5x</td></tr>
+        <tr><td>UnmarshalDataset/code-2</td><td>2.3x</td><td>3.1x</td></tr>
+        <tr><td>UnmarshalDataset/twitter-2</td><td>2.5x</td><td>2.6x</td></tr>
+        <tr><td>UnmarshalDataset/citm_catalog-2</td><td>2.1x</td><td>2.2x</td></tr>
+        <tr><td>UnmarshalDataset/canada-2</td><td>1.6x</td><td>1.3x</td></tr>
+        <tr><td>UnmarshalDataset/config-2</td><td>4.3x</td><td>3.2x</td></tr>
+        <tr><td>[Geo mean]</td><td>2.7x</td><td>2.8x</td></tr>
      </tbody>
 </table>
 <p>This table can be generated with <code>./ci.sh benchmark -a -html</code>.</p>
@@ -527,42 +516,14 @@ The new name is `Encoder.SetArraysMultiline`. The behavior should be the same.
 The new name is `Encoder.SetIndentSymbol`. The behavior should be the same.
 
 
-#### Embedded structs are tables
+#### Embedded structs behave like stdlib
 
 V1 defaults to merging embedded struct fields into the embedding struct. This
 behavior was unexpected because it does not follow the standard library. To
 avoid breaking backward compatibility, the `Encoder.PromoteAnonymous` method was
 added to make the encoder behave correctly. Given backward compatibility is not
-a problem anymore, v2 does the right thing by default. There is no way to revert
-to the old behavior, and `Encoder.PromoteAnonymous` has been removed.
-
-```go
-type Embedded struct {
-	Value string `toml:"value"`
-}
-
-type Doc struct {
-	Embedded
-}
-
-d := Doc{}
-
-fmt.Println("v1:")
-b, err := v1.Marshal(d)
-fmt.Println(string(b))
-
-fmt.Println("v2:")
-b, err = v2.Marshal(d)
-fmt.Println(string(b))
-
-// Output:
-// v1:
-// value = ""
-//
-// v2:
-// [Embedded]
-// value = ''
-```
+a problem anymore, v2 does the right thing by default: it follows the behavior
+of `encoding/json`. `Encoder.PromoteAnonymous` has been removed.
 
 [nodoc]: https://github.com/pelletier/go-toml/discussions/506#discussioncomment-1526038
 
@@ -578,6 +539,13 @@ complete solutions exist out there.
 
 [query]: https://github.com/pelletier/go-toml/tree/f99d6bbca119636aeafcf351ee52b3d202782627/query
 [dasel]: https://github.com/TomWright/dasel
+
+## Versioning
+
+Go-toml follows [Semantic Versioning](http://semver.org/). The supported version
+of [TOML](https://github.com/toml-lang/toml) is indicated at the beginning of
+this document. The last two major versions of Go are supported
+(see [Go Release Policy](https://golang.org/doc/devel/release.html#policy)).
 
 ## License
 
